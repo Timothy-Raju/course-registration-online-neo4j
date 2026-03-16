@@ -25,14 +25,6 @@ app.get("/health", async (req, res) => {
   }
 });
 
-app.get("/api/graph-config", (req, res) => {
-  res.json({
-    uri: process.env.NEO4J_URI,
-    user: process.env.NEO4J_USER,
-    password: process.env.NEO4J_PASSWORD,
-  });
-});
-
 app.get("/api/graph-data", async (req, res) => {
   const session = driver.session();
   try {
