@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Course Registration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+
+      <!-- ── Hero ─────────────────────────────────── -->
+      <header class="hero">
+        <!-- Dot-grid background pattern -->
+        <svg class="hero-bg-dots" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="hero-dots" x="0" y="0" width="24" height="24" patternUnits="userSpaceOnUse">
+              <circle cx="12" cy="12" r="1.2" fill="rgba(255,255,255,0.2)" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#hero-dots)" />
+        </svg>
+
+        <div class="hero-content">
+          <div class="hero-text">
+            <div class="hero-badge">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c3 3 9 3 12 0v-5" />
+              </svg>
+              Academic Portal
+            </div>
+            <h1>Student Course<br /><span class="hero-accent">Registration</span></h1>
+            <p>Manage students, courses, and enrollments in one place.</p>
+          </div>
+
+          <!-- Knowledge-graph illustration -->
+          <div class="hero-graphic" aria-hidden="true">
+            <svg viewBox="0 0 220 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- Connector lines -->
+              <line x1="110" y1="85" x2="52"  y2="42"  stroke="rgba(165,180,252,0.55)" stroke-width="1.5" stroke-dasharray="5 3" />
+              <line x1="110" y1="85" x2="168" y2="42"  stroke="rgba(165,180,252,0.55)" stroke-width="1.5" stroke-dasharray="5 3" />
+              <line x1="110" y1="85" x2="52"  y2="130" stroke="rgba(165,180,252,0.55)" stroke-width="1.5" stroke-dasharray="5 3" />
+              <line x1="110" y1="85" x2="168" y2="130" stroke="rgba(165,180,252,0.55)" stroke-width="1.5" stroke-dasharray="5 3" />
+              <!-- Subtle horizontal bridges -->
+              <line x1="52"  y1="42"  x2="168" y2="42"  stroke="rgba(196,181,253,0.2)" stroke-width="1" />
+              <line x1="52"  y1="130" x2="168" y2="130" stroke="rgba(196,181,253,0.2)" stroke-width="1" />
+              <!-- Central student node -->
+              <circle cx="110" cy="85" r="22" fill="rgba(99,102,241,0.85)" stroke="rgba(255,255,255,0.35)" stroke-width="1.5" />
+              <circle cx="110" cy="79" r="5.5" fill="white" />
+              <path d="M99 95c0-6.1 4.9-11 11-11s11 4.9 11 11" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round" />
+              <!-- Course nodes -->
+              <rect x="28"  y="22"  width="48" height="38" rx="8" fill="rgba(109,40,217,0.75)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+              <text x="52"  y="38"  text-anchor="middle" fill="rgba(255,255,255,0.9)"  font-size="8.5" font-weight="700" font-family="Inter,sans-serif">CS101</text>
+              <text x="52"  y="51"  text-anchor="middle" fill="rgba(255,255,255,0.6)"  font-size="7"   font-family="Inter,sans-serif">Algorithms</text>
+              <rect x="144" y="22"  width="48" height="38" rx="8" fill="rgba(109,40,217,0.75)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+              <text x="168" y="38"  text-anchor="middle" fill="rgba(255,255,255,0.9)"  font-size="8.5" font-weight="700" font-family="Inter,sans-serif">DB201</text>
+              <text x="168" y="51"  text-anchor="middle" fill="rgba(255,255,255,0.6)"  font-size="7"   font-family="Inter,sans-serif">Databases</text>
+              <rect x="28"  y="112" width="48" height="38" rx="8" fill="rgba(109,40,217,0.75)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+              <text x="52"  y="128" text-anchor="middle" fill="rgba(255,255,255,0.9)"  font-size="8.5" font-weight="700" font-family="Inter,sans-serif">ML301</text>
+              <text x="52"  y="141" text-anchor="middle" fill="rgba(255,255,255,0.6)"  font-size="7"   font-family="Inter,sans-serif">Mach. Learning</text>
+              <rect x="144" y="112" width="48" height="38" rx="8" fill="rgba(109,40,217,0.75)" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" />
+              <text x="168" y="128" text-anchor="middle" fill="rgba(255,255,255,0.9)"  font-size="8.5" font-weight="700" font-family="Inter,sans-serif">AI401</text>
+              <text x="168" y="141" text-anchor="middle" fill="rgba(255,255,255,0.6)"  font-size="7"   font-family="Inter,sans-serif">Deep Learning</text>
+              <!-- Accent dots -->
+              <circle cx="14"  cy="90"  r="3.5" fill="rgba(196,181,253,0.5)" />
+              <circle cx="206" cy="80"  r="3.5" fill="rgba(196,181,253,0.5)" />
+              <circle cx="110" cy="8"   r="2.5" fill="rgba(165,180,252,0.45)" />
+              <circle cx="110" cy="162" r="2.5" fill="rgba(165,180,252,0.45)" />
+            </svg>
+          </div>
+        </div>
+      </header>
+
+      <!-- ── Nav button ─────────────────────────── -->
+      <div class="button-group">
+        <a href="graph.html" class="btn-graph">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+            <line x1="15.41" y1="6.51"  x2="8.59"  y2="10.49" />
+          </svg>
+          View Graph Visualization
+        </a>
+      </div>
+
+      <!-- ── Row 1: Add forms ───────────────────── -->
+      <section class="grid">
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+            </span>
+            Add Student
+          </h2>
+          <form id="student-form">
+            <div class="field">
+              <label for="student-name">Full Name</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <input id="student-name" name="name" placeholder="e.g. Alice Johnson" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="student-id">Student ID</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" /></svg>
+                <input id="student-id" name="studentId" placeholder="e.g. S101" required />
+              </div>
+            </div>
+            <button type="submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+              Save Student
+            </button>
+          </form>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--purple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+            </span>
+            Add Course
+          </h2>
+          <form id="course-form">
+            <div class="field">
+              <label for="course-title">Course Title</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+                <input id="course-title" name="title" placeholder="e.g. Database Systems" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="course-code">Course Code</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                <input id="course-code" name="courseCode" placeholder="e.g. CS201" required />
+              </div>
+            </div>
+            <button type="submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" /></svg>
+              Save Course
+            </button>
+          </form>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--green" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><line x1="19" y1="8" x2="19" y2="14" /><line x1="22" y1="11" x2="16" y2="11" /></svg>
+            </span>
+            Enroll Student
+          </h2>
+          <form id="enroll-form">
+            <div class="field">
+              <label for="enroll-student-id">Student ID</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <input id="enroll-student-id" name="studentId" placeholder="e.g. S101" required />
+              </div>
+            </div>
+            <div class="field">
+              <label for="enroll-course-code">Course Code</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                <input id="enroll-course-code" name="courseCode" placeholder="e.g. CS201" required />
+              </div>
+            </div>
+            <button type="submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="20 6 9 17 4 12" /></svg>
+              Enroll
+            </button>
+          </form>
+        </article>
+
+      </section>
+
+      <!-- ── Row 2: Lists ──────────────────────── -->
+      <section class="grid grid-2">
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--blue" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+            </span>
+            Students
+          </h2>
+          <button class="secondary" id="load-students">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="1 4 1 10 7 10" /><polyline points="23 20 23 14 17 14" /><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" /></svg>
+            Load Students
+          </button>
+          <ul id="students-list"></ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--purple" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+            </span>
+            Courses
+          </h2>
+          <button class="secondary" id="load-courses">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="1 4 1 10 7 10" /><polyline points="23 20 23 14 17 14" /><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15" /></svg>
+            Load Courses
+          </button>
+          <ul id="courses-list"></ul>
+        </article>
+
+      </section>
+
+      <!-- ── Row 3: Query forms ─────────────────── -->
+      <section class="grid grid-2">
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--cyan" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            </span>
+            Courses by Student
+          </h2>
+          <form id="student-courses-form">
+            <div class="field">
+              <label for="query-student-id">Student ID</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                <input id="query-student-id" name="studentId" placeholder="Enter student ID" required />
+              </div>
+            </div>
+            <button type="submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              View Courses
+            </button>
+          </form>
+          <ul id="student-courses-result"></ul>
+        </article>
+
+        <article class="card">
+          <h2>
+            <span class="card-icon card-icon--cyan" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+            </span>
+            Students by Course
+          </h2>
+          <form id="course-students-form">
+            <div class="field">
+              <label for="query-course-code">Course Code</label>
+              <div class="input-wrap">
+                <svg class="input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                <input id="query-course-code" name="courseCode" placeholder="Enter course code" required />
+              </div>
+            </div>
+            <button type="submit">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
+              View Students
+            </button>
+          </form>
+          <ul id="course-students-result"></ul>
+        </article>
+
+      </section>
+
+      <!-- Keep status hidden – referenced by app.js -->
+      <p class="status" id="status"></p>
+
+    </main>
+
+    <!-- Loading overlay -->
+    <div id="loading-overlay" class="loading-overlay" aria-live="polite" aria-hidden="true">
+      <div class="loading-card" role="status" aria-busy="true">
+        <div class="spinner" aria-hidden="true"></div>
+        <p id="loading-text">Please wait…</p>
+      </div>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

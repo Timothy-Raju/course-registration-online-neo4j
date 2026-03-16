@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Database Graph Visualization</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis.min.js"></script>
+  <style>
+    :root {
+      --bg: #f0f4ff;
+      --surface: rgba(255, 255, 255, 0.88);
+      --surface-solid: #ffffff;
+      --ink: #0f172a;
+      --soft-ink: #64748b;
+      --line: #e2e8f0;
+      --accent: #4f46e5;
+      --accent-2: #7c3aed;
+      --student: #2563eb;
+      --course: #7c3aed;
+      --success: #059669;
+      --error: #dc2626;
+      --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(79, 70, 229, 0.12), transparent 28%),
+        radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.12), transparent 25%),
+        var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .page {
+      min-height: 100%;
+      padding: 1rem;
+    }
+
+    .shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 1rem;
+      min-height: calc(100vh - 2rem);
+    }
+
+    .workspace,
+    .sidebar {
+      min-height: 0;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 1.75rem;
+      background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%);
+      color: #ffffff;
+      box-shadow: var(--shadow);
+      margin-bottom: 1rem;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 18% 24%, rgba(165, 180, 252, 0.35), transparent 25%),
+        radial-gradient(circle at 82% 18%, rgba(196, 181, 253, 0.2), transparent 20%);
+      pointer-events: none;
+    }
+
+    .hero-grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 240px;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 0.9rem;
+      backdrop-filter: blur(12px);
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+    }
+
+    .hero p {
+      margin: 0.8rem 0 0;
+      max-width: 620px;
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.76);
+    }
+
+    .hero-visual {
+      justify-self: end;
+      width: 220px;
+      opacity: 0.95;
+    }
+
+    .hero-visual svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .topbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .actions,
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn,
+    .chip-btn {
+      appearance: none;
+      border: 0;
+      border-radius: 12px;
+      font: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background-color 0.18s ease;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.55rem;
+      padding: 0.78rem 1.05rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      box-shadow: 0 12px 24px rgba(79, 70, 229, 0.24);
+    }
+
+    .btn.secondary {
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid var(--line);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+    }
+
+    .btn:hover,
+    .chip-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn svg,
+    .chip-btn svg,
+    .eyebrow svg {
+      width: 16px;
+      height: 16px;
+      flex-shrink: 0;
+    }
+
+    .stat-card {
+      min-width: 124px;
+      padding: 0.85rem 1rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(255, 255, 255, 0.78);
+      backdrop-filter: blur(12px);
+      box-shadow: 0 14px 32px rgba(15, 23, 42, 0.06);
+    }
+
+    .stat-card span {
+      display: block;
+      font-size: 0.76rem;
+      color: var(--soft-ink);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+    }
+
+    .stat-card strong {
+      display: block;
+      margin-top: 0.35rem;
+      font-size: 1.55rem;
+      color: var(--ink);
+    }
+
+    .panel {
+      position: relative;
+      background: var(--surface);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(16px);
+    }
+
+    .graph-panel {
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr);
+      height: clamp(560px, 72vh, 860px);
+      min-height: 560px;
+      overflow: hidden;
+    }
+
+    .graph-toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1rem 0;
+    }
+
+    .graph-toolbar h2,
+    .sidebar h2,
+    .panel h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .toolbar-copy {
+      color: var(--soft-ink);
+      font-size: 0.92rem;
+    }
+
+    .graph-stage {
+      position: relative;
+      min-height: 0;
+      height: 100%;
+      padding: 1rem;
+    }
+
+    .graph-canvas {
+      position: relative;
+      height: 100%;
+      min-height: 0;
+      overflow: hidden;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.94)),
+        linear-gradient(90deg, rgba(79, 70, 229, 0.06) 1px, transparent 1px),
+        linear-gradient(rgba(79, 70, 229, 0.06) 1px, transparent 1px);
+      background-size: auto, 28px 28px, 28px 28px;
+      background-position: 0 0, -1px -1px, -1px -1px;
+    }
+
+    #graph {
+      width: 100%;
+      height: 100%;
+    }
+
+    .floating-tools {
+      position: absolute;
+      top: 1.25rem;
+      left: 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      z-index: 2;
+    }
+
+    .chip-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.58rem 0.8rem;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .chip-btn.is-active {
+      color: #ffffff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      border-color: transparent;
+    }
+
+    .status-pill {
+      position: absolute;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      z-index: 2;
+      max-width: min(72%, 420px);
+      padding: 0.8rem 1rem;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.86);
+      color: rgba(255, 255, 255, 0.95);
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+    }
+
+    .status-pill[data-state="error"] {
+      background: rgba(220, 38, 38, 0.92);
+    }
+
+    .overlay {
+      position: absolute;
+      inset: 1rem;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 3;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.72);
+      backdrop-filter: blur(10px);
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .overlay-card {
+      min-width: 220px;
+      padding: 1.25rem 1.4rem;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.1);
+      text-align: center;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      margin: 0 auto;
+      border-radius: 999px;
+      border: 3px solid rgba(79, 70, 229, 0.15);
+      border-top-color: var(--accent);
+      animation: spin 0.9s linear infinite;
+    }
+
+    .overlay-card p {
+      margin: 0.8rem 0 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .sidebar {
+      display: grid;
+      gap: 1rem;
+      align-content: start;
+    }
+
+    .sidebar-section {
+      padding: 1.15rem;
+    }
+
+    .sidebar-section + .sidebar-section {
+      margin-top: 0;
+    }
+
+    .sidebar-copy {
+      margin: 0.45rem 0 0;
+      color: var(--soft-ink);
+      font-size: 0.92rem;
+      line-height: 1.5;
+    }
+
+    .legend-list,
+    .detail-list {
+      display: grid;
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .legend-item,
+    .detail-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.82rem 0.9rem;
+      border-radius: 14px;
+      background: rgba(240, 244, 255, 0.78);
+      border: 1px solid rgba(226, 232, 240, 0.95);
+    }
+
+    .legend-item strong,
+    .detail-row strong {
+      font-size: 0.92rem;
+    }
+
+    .legend-meta,
+    .detail-row span {
+      color: var(--soft-ink);
+      font-size: 0.84rem;
+    }
+
+    .legend-swatch {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      margin-right: 0.55rem;
+      flex-shrink: 0;
+    }
+
+    .legend-swatch.student {
+      background: var(--student);
+      box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
+    }
+
+    .legend-swatch.course {
+      background: var(--course);
+      box-shadow: 0 0 0 6px rgba(124, 58, 237, 0.12);
+    }
+
+    .detail-empty {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 16px;
+      color: var(--soft-ink);
+      background: rgba(240, 244, 255, 0.78);
+      border: 1px dashed #cbd5e1;
+      line-height: 1.5;
+    }
+
+    .detail-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.65rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin: 0.85rem 0 0.65rem;
+    }
+
+    .detail-badge.student {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--student);
+    }
+
+    .detail-badge.course {
+      background: rgba(124, 58, 237, 0.1);
+      color: var(--course);
+    }
+
+    .detail-title {
+      margin: 0;
+      font-size: 1.2rem;
+      line-height: 1.3;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 1.25rem;
+      bottom: 1.25rem;
+      z-index: 10;
+      display: grid;
+      gap: 0.7rem;
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      max-width: 320px;
+      padding: 0.85rem 0.95rem;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid var(--line);
+      box-shadow: 0 18px 36px rgba(15, 23, 42, 0.15);
+      animation: toast-in 0.24s ease;
+    }
+
+    .toast.removing {
+      animation: toast-out 0.2s ease forwards;
+    }
+
+    .toast-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .toast-icon svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .toast.success .toast-icon {
+      background: rgba(5, 150, 105, 0.12);
+      color: var(--success);
+    }
+
+    .toast.error .toast-icon {
+      background: rgba(220, 38, 38, 0.12);
+      color: var(--error);
+    }
+
+    .toast.info .toast-icon {
+      background: rgba(79, 70, 229, 0.12);
+      color: var(--accent);
+    }
+
+    .toast-message {
+      color: var(--ink);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .toast-close {
+      margin-left: auto;
+      appearance: none;
+      background: transparent;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      color: #94a3b8;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .toast-close svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes toast-out {
+      to {
+        opacity: 0;
+        transform: translateY(10px) scale(0.98);
+      }
+    }
+
+    @media (max-width: 1180px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 860px) {
+      .page {
+        padding: 0.75rem;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-visual {
+        display: none;
+      }
+
+      .sidebar {
+        grid-template-columns: 1fr;
+      }
+
+      .graph-panel {
+        height: 540px;
+        min-height: 540px;
+      }
+
+      .graph-canvas {
+        min-height: 0;
+      }
+
+      .status-pill {
+        left: 1.25rem;
+        max-width: calc(100% - 2.5rem);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <main class="workspace">
+        <section class="hero">
+          <div class="hero-grid">
+            <div>
+              <div class="eyebrow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" aria-hidden="true">
+                  <circle cx="5" cy="12" r="2.5"></circle>
+                  <circle cx="19" cy="5" r="2.5"></circle>
+                  <circle cx="19" cy="19" r="2.5"></circle>
+                  <path d="M7.4 11.1 16.6 6.2"></path>
+                  <path d="M7.4 12.9 16.6 17.8"></path>
+                </svg>
+                Graph Explorer
+              </div>
+              <h1>Student Course<br />Relationship Map</h1>
+              <p>Inspect the live network behind your Neo4j data, focus the graph, and click any node to review its details and connections.</p>
+            </div>
+            <div class="hero-visual" aria-hidden="true">
+              <svg viewBox="0 0 240 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <line x1="54" y1="48" x2="120" y2="92" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-dasharray="6 4"></line>
+                <line x1="186" y1="48" x2="120" y2="92" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-dasharray="6 4"></line>
+                <line x1="54" y1="132" x2="120" y2="92" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-dasharray="6 4"></line>
+                <line x1="186" y1="132" x2="120" y2="92" stroke="rgba(255,255,255,0.55)" stroke-width="2" stroke-dasharray="6 4"></line>
+                <circle cx="120" cy="92" r="26" fill="rgba(99,102,241,0.92)"></circle>
+                <circle cx="120" cy="84" r="6" fill="white"></circle>
+                <path d="M108 102c1.8-6 5.8-9 12-9 6.2 0 10.2 3 12 9" stroke="white" stroke-width="2" stroke-linecap="round"></path>
+                <rect x="30" y="28" width="48" height="36" rx="10" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.22)"></rect>
+                <rect x="162" y="28" width="48" height="36" rx="10" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.22)"></rect>
+                <rect x="30" y="114" width="48" height="36" rx="10" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.22)"></rect>
+                <rect x="162" y="114" width="48" height="36" rx="10" fill="rgba(255,255,255,0.16)" stroke="rgba(255,255,255,0.22)"></rect>
+                <text x="54" y="50" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="Inter, sans-serif">CS101</text>
+                <text x="186" y="50" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="Inter, sans-serif">DB201</text>
+                <text x="54" y="136" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="Inter, sans-serif">AI401</text>
+                <text x="186" y="136" text-anchor="middle" fill="white" font-size="9" font-weight="700" font-family="Inter, sans-serif">ML301</text>
+              </svg>
+            </div>
+          </div>
+        </section>
+
+        <div class="topbar">
+          <div class="actions">
+            <a class="btn secondary" href="index.html">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 18l-6-6 6-6"></path><path d="M21 12H9"></path></svg>
+              Back to Forms
+            </a>
+            <button class="btn" id="refresh-graph" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"></path><path d="M21 3v6h-6"></path></svg>
+              Refresh Graph
+            </button>
+          </div>
+
+          <div class="stats">
+            <div class="stat-card">
+              <span>Total Nodes</span>
+              <strong id="stat-nodes">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>Relationships</span>
+              <strong id="stat-edges">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>Students</span>
+              <strong id="stat-students">0</strong>
+            </div>
+            <div class="stat-card">
+              <span>Courses</span>
+              <strong id="stat-courses">0</strong>
+            </div>
+          </div>
+        </div>
+
+        <section class="panel graph-panel">
+          <div class="graph-toolbar">
+            <div>
+              <h2>Interactive Network</h2>
+              <p class="toolbar-copy">Drag nodes, inspect relationships, and re-center the view at any time.</p>
+            </div>
+            <div class="actions">
+              <button class="chip-btn" id="fit-graph" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3"></path><path d="M16 3h3a2 2 0 0 1 2 2v3"></path><path d="M8 21H5a2 2 0 0 1-2-2v-3"></path><path d="M16 21h3a2 2 0 0 0 2-2v-3"></path></svg>
+                Fit View
+              </button>
+              <button class="chip-btn is-active" id="toggle-physics" type="button">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v4"></path><path d="M12 19v4"></path><path d="M4.22 4.22l2.83 2.83"></path><path d="M16.95 16.95l2.83 2.83"></path><path d="M1 12h4"></path><path d="M19 12h4"></path><path d="M4.22 19.78l2.83-2.83"></path><path d="M16.95 7.05l2.83-2.83"></path></svg>
+                Physics On
+              </button>
+            </div>
+          </div>
+
+          <div class="graph-stage">
+            <div class="graph-canvas">
+              <div class="floating-tools">
+                <button class="chip-btn" id="highlight-students" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                  Focus Students
+                </button>
+                <button class="chip-btn" id="highlight-courses" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                  Focus Courses
+                </button>
+                <button class="chip-btn" id="clear-focus" type="button">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 3l18 18"></path><path d="M10 10a3 3 0 0 0 4 4"></path><path d="M9.88 4.24A10.94 10.94 0 0 1 12 4c5 0 9.27 3.11 11 7.5a11.82 11.82 0 0 1-2.17 3.49"></path><path d="M6.61 6.61A11.84 11.84 0 0 0 1 11.5C2.73 15.89 7 19 12 19a10.9 10.9 0 0 0 5.39-1.39"></path></svg>
+                  Clear Focus
+                </button>
+              </div>
+
+              <div id="graph"></div>
+              <div class="overlay active" id="loading-overlay" aria-hidden="false">
+                <div class="overlay-card" role="status" aria-busy="true">
+                  <div class="spinner" aria-hidden="true"></div>
+                  <p id="loading-text">Loading graph...</p>
+                </div>
+              </div>
+              <div class="status-pill" id="status" data-state="info">Loading graph...</div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="sidebar">
+        <section class="panel sidebar-section">
+          <h2>Legend</h2>
+          <p class="sidebar-copy">Each node type uses a distinct color so the graph remains readable as the network grows.</p>
+          <div class="legend-list">
+            <div class="legend-item">
+              <div>
+                <strong><span class="legend-swatch student"></span>Student</strong>
+              </div>
+              <span class="legend-meta">People records</span>
+            </div>
+            <div class="legend-item">
+              <div>
+                <strong><span class="legend-swatch course"></span>Course</strong>
+              </div>
+              <span class="legend-meta">Class entities</span>
+            </div>
+            <div class="legend-item">
+              <div>
+                <strong>Arrow Edge</strong>
+              </div>
+              <span class="legend-meta">Enrolled in</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel sidebar-section">
+          <h2>Selected Node</h2>
+          <p class="sidebar-copy">Click a node in the graph to inspect its type, label, and identifier here.</p>
+          <div id="detail-empty" class="detail-empty">No node selected yet. Click any student or course node in the network.</div>
+          <div id="detail-card" hidden>
+            <div id="detail-badge" class="detail-badge">Node</div>
+            <h3 id="detail-title" class="detail-title"></h3>
+            <div class="detail-list">
+              <div class="detail-row">
+                <strong>Type</strong>
+                <span id="detail-type"></span>
+              </div>
+              <div class="detail-row">
+                <strong>Identifier</strong>
+                <span id="detail-id"></span>
+              </div>
+              <div class="detail-row">
+                <strong>Connections</strong>
+                <span id="detail-degree"></span>
+              </div>
+            </div>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div class="toast-stack" id="toast-stack" aria-live="polite" aria-atomic="false"></div>
+
+  <script>
+    const API_BASE = window.location.port === "3000" ? "" : "http://localhost:3000";
+    const statusEl = document.getElementById("status");
+    const loadingOverlay = document.getElementById("loading-overlay");
+    const loadingTextEl = document.getElementById("loading-text");
+    const toastStack = document.getElementById("toast-stack");
+    const statNodesEl = document.getElementById("stat-nodes");
+    const statEdgesEl = document.getElementById("stat-edges");
+    const statStudentsEl = document.getElementById("stat-students");
+    const statCoursesEl = document.getElementById("stat-courses");
+    const detailEmptyEl = document.getElementById("detail-empty");
+    const detailCardEl = document.getElementById("detail-card");
+    const detailBadgeEl = document.getElementById("detail-badge");
+    const detailTitleEl = document.getElementById("detail-title");
+    const detailTypeEl = document.getElementById("detail-type");
+    const detailIdEl = document.getElementById("detail-id");
+    const detailDegreeEl = document.getElementById("detail-degree");
+    const physicsButton = document.getElementById("toggle-physics");
+
+    let network;
+    let graphData = null;
+    let physicsEnabled = true;
+
+    function setLoading(isLoading, message = "Loading graph...") {
+      loadingOverlay.classList.toggle("active", isLoading);
+      loadingOverlay.setAttribute("aria-hidden", String(!isLoading));
+      loadingTextEl.textContent = message;
+    }
+
+    function setStatus(message, state = "info") {
+      statusEl.textContent = message;
+      statusEl.dataset.state = state;
+    }
+
+    function showToast(message, type = "info") {
+      const icons = {
+        info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 10v5"></path><path d="M12 7h.01"></path></svg>',
+        success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>',
+        error: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg>'
+      };
+
+      const toast = document.createElement("div");
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || icons.info}</span>
+        <span class="toast-message"></span>
+        <button class="toast-close" type="button" aria-label="Dismiss notification">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M18 6 6 18"></path><path d="M6 6l12 12"></path></svg>
+        </button>
+      `;
+      toast.querySelector(".toast-message").textContent = message;
+      toastStack.appendChild(toast);
+
+      const removeToast = () => {
+        if (toast.classList.contains("removing")) {
+          return;
+        }
+        toast.classList.add("removing");
+        window.setTimeout(() => toast.remove(), 220);
+      };
+
+      toast.querySelector(".toast-close").addEventListener("click", removeToast);
+      window.setTimeout(removeToast, 4200);
+    }
+
+    function updateStats(data) {
+      const students = data.nodes.filter((node) => node.group === "student").length;
+      const courses = data.nodes.filter((node) => node.group === "course").length;
+      statNodesEl.textContent = String(data.nodes.length);
+      statEdgesEl.textContent = String(data.edges.length);
+      statStudentsEl.textContent = String(students);
+      statCoursesEl.textContent = String(courses);
+    }
+
+    function getNodeType(node) {
+      if (node.group === "student") {
+        return "Student";
+      }
+      if (node.group === "course") {
+        return "Course";
+      }
+      return "Node";
+    }
+
+    function getNodeIdentifier(node) {
+      return node.studentId || node.courseCode || node.id || "Unknown";
+    }
+
+    function getNodeDegree(nodeId) {
+      if (!graphData) {
+        return 0;
+      }
+
+      return graphData.edges.filter((edge) => edge.from === nodeId || edge.to === nodeId).length;
+    }
+
+    function renderNodeDetails(nodeId) {
+      const node = graphData?.nodes.find((item) => item.id === nodeId);
+      if (!node) {
+        detailCardEl.hidden = true;
+        detailEmptyEl.hidden = false;
+        return;
+      }
+
+      const type = getNodeType(node);
+      detailBadgeEl.textContent = type;
+      detailBadgeEl.className = `detail-badge ${type.toLowerCase()}`;
+      detailTitleEl.textContent = node.label || node.title || getNodeIdentifier(node);
+      detailTypeEl.textContent = type;
+      detailIdEl.textContent = getNodeIdentifier(node);
+      detailDegreeEl.textContent = `${getNodeDegree(node.id)} linked record(s)`;
+      detailEmptyEl.hidden = true;
+      detailCardEl.hidden = false;
+    }
+
+    function clearNodeDetails() {
+      detailCardEl.hidden = true;
+      detailEmptyEl.hidden = false;
+    }
+
+    async function loadGraphData() {
+      const response = await fetch(`${API_BASE}/api/graph-data`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch graph data");
+      }
+      return response.json();
+    }
+
+    function focusNodesByGroup(groupName) {
+      if (!network || !graphData) {
+        return;
+      }
+
+      const ids = graphData.nodes.filter((node) => node.group === groupName).map((node) => node.id);
+      if (!ids.length) {
+        showToast(`No ${groupName} nodes found`, "info");
+        return;
+      }
+
+      network.fit({
+        nodes: ids,
+        animation: {
+          duration: 500,
+          easingFunction: "easeInOutQuad"
+        }
+      });
+      setStatus(`Focused ${groupName} nodes`, "info");
+    }
+
+    function resetView() {
+      if (!network) {
+        return;
+      }
+
+      network.fit({
+        animation: {
+          duration: 500,
+          easingFunction: "easeInOutQuad"
+        }
+      });
+      clearNodeDetails();
+      setStatus("Graph view reset", "info");
+    }
+
+    function updatePhysicsButton() {
+      physicsButton.classList.toggle("is-active", physicsEnabled);
+      physicsButton.innerHTML = physicsEnabled
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M12 1v4"></path><path d="M12 19v4"></path><path d="M4.22 4.22l2.83 2.83"></path><path d="M16.95 16.95l2.83 2.83"></path><path d="M1 12h4"></path><path d="M19 12h4"></path><path d="M4.22 19.78l2.83-2.83"></path><path d="M16.95 7.05l2.83-2.83"></path></svg>Physics On'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M3 3l18 18"></path><circle cx="12" cy="12" r="3"></circle><path d="M12 1v4"></path><path d="M1 12h4"></path></svg>Physics Off';
+    }
+
+    function togglePhysics() {
+      if (!network) {
+        return;
+      }
+
+      physicsEnabled = !physicsEnabled;
+      network.setOptions({ physics: { enabled: physicsEnabled } });
+      updatePhysicsButton();
+      setStatus(physicsEnabled ? "Physics enabled" : "Physics paused", "info");
+      showToast(physicsEnabled ? "Graph physics enabled" : "Graph physics paused", "info");
+    }
+
+    function buildNetworkOptions() {
+      return {
+        autoResize: true,
+        interaction: {
+          hover: true,
+          navigationButtons: false,
+          keyboard: true,
+          zoomView: true
+        },
+        physics: {
+          enabled: physicsEnabled,
+          stabilization: {
+            enabled: true,
+            iterations: 200,
+            updateInterval: 20
+          },
+          barnesHut: {
+            gravitationalConstant: -5200,
+            springLength: 180,
+            springConstant: 0.03,
+            damping: 0.14
+          }
+        },
+        nodes: {
+          shape: "dot",
+          size: 22,
+          borderWidth: 2,
+          borderWidthSelected: 4,
+          font: {
+            face: "Inter",
+            size: 14,
+            color: "#ffffff",
+            vadjust: -32
+          },
+          shadow: {
+            enabled: true,
+            color: "rgba(15, 23, 42, 0.18)",
+            size: 14,
+            x: 0,
+            y: 10
+          }
+        },
+        edges: {
+          arrows: {
+            to: {
+              enabled: true,
+              scaleFactor: 0.65
+            }
+          },
+          smooth: {
+            enabled: true,
+            type: "dynamic",
+            roundness: 0.4
+          },
+          color: {
+            color: "rgba(99, 102, 241, 0.32)",
+            highlight: "rgba(79, 70, 229, 0.72)",
+            hover: "rgba(79, 70, 229, 0.72)"
+          },
+          width: 2,
+          selectionWidth: 3,
+          font: {
+            face: "Inter",
+            size: 12,
+            color: "#64748b",
+            strokeWidth: 0
+          }
+        }
+      };
+    }
+
+    function enhanceGraphData(data) {
+      return {
+        nodes: data.nodes.map((node) => {
+          const isStudent = node.group === "student";
+          return {
+            ...node,
+            color: {
+              background: isStudent ? "#2563eb" : "#7c3aed",
+              border: isStudent ? "#93c5fd" : "#c4b5fd",
+              highlight: {
+                background: isStudent ? "#1d4ed8" : "#6d28d9",
+                border: isStudent ? "#dbeafe" : "#ede9fe"
+              },
+              hover: {
+                background: isStudent ? "#1d4ed8" : "#6d28d9",
+                border: isStudent ? "#dbeafe" : "#ede9fe"
+              }
+            }
+          };
+        }),
+        edges: data.edges.map((edge) => ({
+          ...edge,
+          label: edge.label || "ENROLLED_IN"
+        }))
+      };
+    }
+
+    async function initializeGraph() {
+      setLoading(true, "Loading graph...");
+      setStatus("Loading graph...", "info");
+
+      try {
+        const rawData = await loadGraphData();
+        graphData = enhanceGraphData(rawData);
+        updateStats(graphData);
+        clearNodeDetails();
+
+        const container = document.getElementById("graph");
+        if (!container) {
+          throw new Error("Graph container not found");
+        }
+
+        if (network) {
+          network.destroy();
+        }
+
+        const nodes = new vis.DataSet(graphData.nodes);
+        const edges = new vis.DataSet(graphData.edges);
+        network = new vis.Network(container, { nodes, edges }, buildNetworkOptions());
+
+        network.on("click", (params) => {
+          if (!params.nodes.length) {
+            clearNodeDetails();
+            setStatus("Selection cleared", "info");
+            return;
+          }
+
+          renderNodeDetails(params.nodes[0]);
+        });
+
+        network.on("doubleClick", (params) => {
+          if (!params.nodes.length) {
+            return;
+          }
+
+          network.focus(params.nodes[0], {
+            scale: 1.05,
+            animation: {
+              duration: 420,
+              easingFunction: "easeInOutQuad"
+            }
+          });
+        });
+
+        network.on("stabilizationProgress", (params) => {
+          const progress = Math.round((params.iterations / params.total) * 100);
+          setStatus(`Rendering graph... ${progress}%`, "info");
+          loadingTextEl.textContent = `Rendering graph... ${progress}%`;
+        });
+
+        network.on("stabilizationIterationsDone", () => {
+          network.setOptions({ physics: { stabilization: false } });
+          setLoading(false);
+          setStatus(`Graph loaded: ${graphData.nodes.length} nodes, ${graphData.edges.length} relationships`, "info");
+          showToast("Graph refreshed successfully", "success");
+        });
+
+        network.once("afterDrawing", () => {
+          setLoading(false);
+        });
+      } catch (error) {
+        setLoading(false);
+        setStatus(`Error: ${error.message}`, "error");
+        showToast(error.message, "error");
+      }
+    }
+
+    document.getElementById("refresh-graph").addEventListener("click", () => {
+      showToast("Refreshing graph data...", "info");
+      initializeGraph();
+    });
+
+    document.getElementById("fit-graph").addEventListener("click", resetView);
+    document.getElementById("toggle-physics").addEventListener("click", togglePhysics);
+    document.getElementById("highlight-students").addEventListener("click", () => focusNodesByGroup("student"));
+    document.getElementById("highlight-courses").addEventListener("click", () => focusNodesByGroup("course"));
+    document.getElementById("clear-focus").addEventListener("click", resetView);
+
+    updatePhysicsButton();
+    window.addEventListener("load", initializeGraph);
+  </script>
+</body>
+</html>
