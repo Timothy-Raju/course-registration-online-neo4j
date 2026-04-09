@@ -10,7 +10,7 @@ status = 200
 
 [[redirects]]
 from = "/*"
-to = "/index.html"
+to = "/signin.html"
 status = 200
 
 [context.production.environment]

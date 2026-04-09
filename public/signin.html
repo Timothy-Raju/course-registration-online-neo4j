@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Temporary Sign In</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-a: #e8fbf7;
+        --bg-b: #fff7ed;
+        --surface: rgba(255, 255, 255, 0.82);
+        --ink: #0b1220;
+        --soft-ink: #4b5563;
+        --line: #d1d5db;
+        --focus: #0ea5a4;
+        --focus-glow: rgba(14, 165, 164, 0.2);
+        --primary: #0f766e;
+        --primary-2: #14b8a6;
+        --accent: #f97316;
+        --danger: #dc2626;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 12% 18%, rgba(20, 184, 166, 0.24), transparent 35%),
+          radial-gradient(circle at 88% 12%, rgba(249, 115, 22, 0.2), transparent 30%),
+          linear-gradient(140deg, var(--bg-a), var(--bg-b));
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+      }
+
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background-image: radial-gradient(rgba(15, 118, 110, 0.2) 0.9px, transparent 0.9px);
+        background-size: 20px 20px;
+        mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+      }
+
+      .signin-shell {
+        width: min(980px, 100%);
+        display: grid;
+        grid-template-columns: 1.2fr 1fr;
+        border: 1px solid rgba(255, 255, 255, 0.65);
+        border-radius: 28px;
+        overflow: hidden;
+        background: var(--surface);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 24px 64px rgba(2, 6, 23, 0.18);
+        animation: pop-in 0.6s ease-out both;
+      }
+
+      .panel {
+        padding: 2.2rem;
+      }
+
+      .brand {
+        background:
+          radial-gradient(circle at 18% 30%, rgba(20, 184, 166, 0.28), transparent 40%),
+          radial-gradient(circle at 80% 15%, rgba(249, 115, 22, 0.2), transparent 35%),
+          linear-gradient(160deg, #082f2d, #134e4a 52%, #155e75);
+        color: #ecfeff;
+        position: relative;
+      }
+
+      .brand::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(120deg, rgba(255, 255, 255, 0.1), transparent 45%),
+          repeating-linear-gradient(
+            -35deg,
+            rgba(255, 255, 255, 0.06),
+            rgba(255, 255, 255, 0.06) 12px,
+            transparent 12px,
+            transparent 24px
+          );
+        pointer-events: none;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.14);
+      }
+
+      h1 {
+        margin: 0.9rem 0 0.6rem;
+        font-size: clamp(1.9rem, 2.3vw, 2.4rem);
+        line-height: 1.1;
+      }
+
+      .brand p {
+        margin: 0;
+        color: rgba(236, 254, 255, 0.85);
+        max-width: 28ch;
+      }
+
+      .credentials {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        border-radius: 14px;
+        background: rgba(2, 6, 23, 0.22);
+        border: 1px solid rgba(255, 255, 255, 0.18);
+      }
+
+      .credentials h2 {
+        margin: 0 0 0.65rem;
+        font-family: "Manrope", "Space Grotesk", sans-serif;
+        font-size: 0.92rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .credentials p {
+        margin: 0.35rem 0;
+        font-size: 0.95rem;
+      }
+
+      .credentials strong {
+        font-family: "Manrope", "Space Grotesk", sans-serif;
+        color: #fef08a;
+      }
+
+      .signin {
+        background: rgba(255, 255, 255, 0.86);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .signin h2 {
+        margin: 0;
+        font-size: 1.45rem;
+      }
+
+      .signin p {
+        margin: 0.55rem 0 1.2rem;
+        color: var(--soft-ink);
+      }
+
+      form {
+        display: grid;
+        gap: 0.8rem;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 0.35rem;
+        font-size: 0.86rem;
+        font-weight: 600;
+        color: #1f2937;
+      }
+
+      input {
+        width: 100%;
+        border-radius: 12px;
+        border: 1.5px solid var(--line);
+        background: #fff;
+        padding: 0.75rem 0.9rem;
+        font: inherit;
+        color: var(--ink);
+        outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      input:focus {
+        border-color: var(--focus);
+        box-shadow: 0 0 0 4px var(--focus-glow);
+      }
+
+      .action-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.65rem;
+        margin-top: 0.2rem;
+      }
+
+      button {
+        border: 0;
+        border-radius: 12px;
+        padding: 0.78rem 0.95rem;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn-login {
+        color: #ecfeff;
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        box-shadow: 0 10px 22px rgba(15, 118, 110, 0.24);
+      }
+
+      .btn-skip {
+        color: #0b1220;
+        background: linear-gradient(135deg, #ffe9d6, #ffedd5);
+        border: 1px solid #fdba74;
+      }
+
+      .note {
+        margin-top: 0.8rem;
+        color: #6b7280;
+        font-size: 0.84rem;
+      }
+
+      .error {
+        min-height: 1.2rem;
+        margin: 0.5rem 0 0;
+        color: var(--danger);
+        font-weight: 600;
+        font-size: 0.88rem;
+      }
+
+      @keyframes pop-in {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.985);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @media (max-width: 880px) {
+        .signin-shell {
+          grid-template-columns: 1fr;
+        }
+
+        .panel {
+          padding: 1.4rem;
+        }
+
+        .action-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="backdrop" aria-hidden="true"></div>
+
+    <main class="signin-shell" aria-label="Temporary Sign In">
+      <section class="panel brand">
+        <div class="chip">Neo4j Demo Access</div>
+        <h1>Temporary Sign In Portal</h1>
+        <p>
+          This login is temporary for demo use. Use the shared credentials shown below to continue to the index page.
+        </p>
+
+        <div class="credentials" aria-label="Temporary credentials">
+          <h2>Use these credentials</h2>
+          <p><strong>Username:</strong> temporary_user</p>
+          <p><strong>Password:</strong> neo4jenter</p>
+        </div>
+      </section>
+
+      <section class="panel signin">
+        <h2>Sign In</h2>
+        <p>Enter the temporary credentials exactly as shown.</p>
+
+        <form id="signin-form">
+          <div>
+            <label for="username">Username</label>
+            <input id="username" name="username" autocomplete="username" required />
+          </div>
+          <div>
+            <label for="password">Password</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required />
+          </div>
+
+          <div class="action-row">
+            <button type="submit" class="btn-login">Login</button>
+            <button type="button" id="skip-login" class="btn-skip">No login</button>
+          </div>
+
+          <p id="error-message" class="error" aria-live="polite"></p>
+        </form>
+
+        <p class="note">For quick testing, you can click "No login" to open the index page directly.</p>
+      </section>
+    </main>
+
+    <script>
+      const AUTH_KEY = "webtech-auth";
+      const REQUIRED_USERNAME = "temporary_user";
+      const REQUIRED_PASSWORD = "neo4jenter";
+
+      const form = document.getElementById("signin-form");
+      const errorMessage = document.getElementById("error-message");
+      const skipBtn = document.getElementById("skip-login");
+
+      function openIndex(mode) {
+        sessionStorage.setItem(AUTH_KEY, mode);
+        window.location.href = "index.html";
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        const formData = new FormData(form);
+        const username = String(formData.get("username") || "").trim();
+        const password = String(formData.get("password") || "");
+
+        if (username === REQUIRED_USERNAME && password === REQUIRED_PASSWORD) {
+          errorMessage.textContent = "";
+          openIndex("logged-in");
+          return;
+        }
+
+        errorMessage.textContent = "Invalid username or password. Use the credentials shown on this page.";
+      });
+
+      skipBtn.addEventListener("click", () => {
+        openIndex("no-login");
+      });
+    </script>
+  </body>
+</html>

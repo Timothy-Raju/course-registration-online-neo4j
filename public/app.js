@@ -1,3 +1,10 @@
+const AUTH_KEY = "webtech-auth";
+const ALLOWED_ACCESS_VALUES = new Set(["logged-in", "no-login"]);
+
+if (!ALLOWED_ACCESS_VALUES.has(sessionStorage.getItem(AUTH_KEY))) {
+  window.location.replace("signin.html");
+}
+
 const statusEl = document.getElementById("status");
 const loadingOverlay = document.getElementById("loading-overlay");
 const loadingTextEl = document.getElementById("loading-text");
