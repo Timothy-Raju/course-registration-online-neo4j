@@ -34,7 +34,18 @@ exports.handler = async (event, context) => {
 
   let driver, session;
   try {
-    const courseCode = decodeURIComponent(event.path.split("/").pop());
+    const courseCode =
+      event.queryStringParameters?.courseCode ||
+      decodeURIComponent((event.path.match(/\/course\/([^/]+)\/students$/)?.[1] || "").trim());
+
+    if (!courseCode) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ message: "courseCode is required" }),
+      };
+    }
+
     driver = createDriver();
     session = driver.session();
 

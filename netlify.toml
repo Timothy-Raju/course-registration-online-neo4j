@@ -4,6 +4,21 @@ functions = "netlify/functions"
 publish = "public"
 
 [[redirects]]
+from = "/api/student/:studentId/courses"
+to = "/.netlify/functions/student-courses?studentId=:studentId"
+status = 200
+
+[[redirects]]
+from = "/api/course/:courseCode/students"
+to = "/.netlify/functions/course-students?courseCode=:courseCode"
+status = 200
+
+[[redirects]]
+from = "/api/graph-data"
+to = "/.netlify/functions/graphData"
+status = 200
+
+[[redirects]]
 from = "/api/*"
 to = "/.netlify/functions/:splat"
 status = 200

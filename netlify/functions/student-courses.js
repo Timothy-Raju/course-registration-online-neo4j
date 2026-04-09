@@ -34,7 +34,18 @@ exports.handler = async (event, context) => {
 
   let driver, session;
   try {
-    const studentId = decodeURIComponent(event.path.split("/").pop());
+    const studentId =
+      event.queryStringParameters?.studentId ||
+      decodeURIComponent((event.path.match(/\/student\/([^/]+)\/courses$/)?.[1] || "").trim());
+
+    if (!studentId) {
+      return {
+        statusCode: 400,
+        headers,
+        body: JSON.stringify({ message: "studentId is required" }),
+      };
+    }
+
     driver = createDriver();
     session = driver.session();
 

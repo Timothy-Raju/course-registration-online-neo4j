@@ -50,19 +50,25 @@ app.get("/api/graph-data", async (req, res) => {
 
         let label = "";
         let color = "#999";
+        let group = "node";
 
         if (labels === "Student") {
           label = props.name || "Unknown";
           color = "#c46a2a";
+          group = "student";
         } else if (labels === "Course") {
           label = props.courseCode || "Unknown";
           color = "#5c6bc0";
+          group = "course";
         }
 
         allNodes.set(id, {
           id,
           label,
           color,
+          group,
+          studentId: props.studentId || null,
+          courseCode: props.courseCode || null,
           title: `${labels}: ${Object.entries(props)
             .map(([k, v]) => `${k}=${v}`)
             .join(", ")}`,
