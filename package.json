@@ -5,8 +5,11 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js",
+    "dev": "netlify dev",
     "test": "echo \"No tests configured\""
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
   },
   "keywords": [],
   "author": "",

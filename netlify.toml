@@ -1,0 +1,18 @@
+[build]
+command = "npm install"
+functions = "netlify/functions"
+publish = "public"
+
+[[redirects]]
+from = "/api/*"
+to = "/.netlify/functions/:splat"
+status = 200
+
+[[redirects]]
+from = "/*"
+to = "/index.html"
+status = 200
+
+[context.production.environment]
+NEO4J_URI = "neo4j+s://ce7d6f3d.databases.neo4j.io"
+NEO4J_USER = "ce7d6f3d"
