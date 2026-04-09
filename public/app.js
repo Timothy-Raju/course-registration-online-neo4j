@@ -1,9 +1,9 @@
 const statusEl = document.getElementById("status");
 const loadingOverlay = document.getElementById("loading-overlay");
 const loadingTextEl = document.getElementById("loading-text");
-const API_BASE = ["", "3000", "80", "443"].includes(window.location.port)
+const API_BASE = ["", "3000", "8888", "80", "443"].includes(window.location.port)
   ? ""
-  : "http://localhost:3000";
+  : "http://localhost:8888";
 let pendingRequests = 0;
 
 function setUIBusy(isBusy, message = "Please wait...") {
